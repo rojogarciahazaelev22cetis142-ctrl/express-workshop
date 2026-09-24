@@ -1,10 +1,13 @@
     const express = require('express');
     const bodyparser = require('body-parser');
+    const morgan = require('morgan');
     const app = express();
-    const { pokemon } = require('./pokedex.json')
-    
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+    const pokemon = require('./routes/pokemon');
+
+    app.use(bodyparser.json());
+    app.use(bodyparser.urlencoded({ extended: true }));
+    app.use(morgan('dev')); // se encarga de mostrar en consola las peticiones que se hacen al servidor
+
     /*
 
     verbos HTTP
@@ -17,39 +20,9 @@
     */
     app.get("/", (req, res, next) =>{
         return res.status(200).send("Bienvenido al Pokedex"); 
-    })
-    /*Como obtener parametro de la url */
-    app.get("/pokemon", (req, res, next) =>{
-        return res.status(200).send(pokemon);
     });
 
-    app.post('/pokemon', (req, res, next) => {
-        res.status(200).send(req.body);
-    }); 
-
-    /*Lo que sigue despues del id es un RegEx que funciona como una condicional para los parametros recibidos por el usuario */
-    app.get('/pokemon/:id', (req, res, next) => {
-        const id = req.params.id;
-        if(isNaN(id)){
-            return next();
-        }
-        else{
-            ( id >= 0 && id <= 150) ?
-            res.status(200).send(pokemon[req.params.id - 1]) :
-            res.status(404).send("Pokemon no encontrado");
-        }
-        
-    })
-    app.get('/pokemon/:name', (req, res, next) => {
-        const name = req.params.name;
-        
-        (!/^[A-Za-z]+$/.test(name)) ? res.status(400).send("Pokemon no encontrado") : null;
-        
-        const pk = pokemon.filter((p) => {
-            return(p.name.toUpperCase() == name.toUpperCase()) && p;
-        }); 
-        (pk.length > 0) ? res.status(200).send(pk[0]) : res.status(404).send("Pokemon no encontrado");
-    }) 
+    app.use('/pokemon', pokemon);
 
     app.listen(process.env.PORT || 3000,()  => {  
         console.log('Server is running on port 3000');
