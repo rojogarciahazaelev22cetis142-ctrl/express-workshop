@@ -2,16 +2,17 @@
     const pokemon = express.Router();
     const db = require('../config/database');
     
-    /*Como obtener parametro de la url */
-    pokemon.get("/", async(req, res, next) =>{
-        const pkmn = await db.query("SELECT * FROM pokemon");
-        console.log(pkmn);
-        return res.status(200).send(pkmn);
-    });
 
     pokemon.post('/', (req, res, next) => {
         res.status(200).send(req.body);
     }); 
+
+    /*Como obtener parametro de la url */
+    pokemon.get("/", async(req, res, next) =>{
+        const pkmn = await db.query("SELECT * FROM pokemon");
+        console.log(pkmn);
+        return res.status(200).json({code: 1, mesage: pkmn});
+    });
 
     /*Lo que sigue despues del id es un RegEx que funciona como una condicional para los parametros recibidos por el usuario */
     pokemon.get('/:id', async(req, res, next) => {
@@ -22,8 +23,8 @@
         else{
             const pkmn = await db.query("SELECT * FROM pokemon WHERE pok_id =  ?", [id]);
             ( id >= 1 && id <= 722) ?
-            res.status(200).send(pkmn) :
-            res.status(404).send("Pokemon no encontrado");
+            res.status(200).json({code : 1, messsage : pkmn}) :
+            res.status(404).json({code: 404, message: "Pokemon no encontrado"});
         }
         
     })
@@ -32,7 +33,9 @@
         (!/^[A-Za-z]+$/.test(name)) ? res.status(400).send("Pokemon no encontrado") : null;
         
         const pk = await db.query("SELECT * FROM pokemon WHERE pok_name = ?", [name]);
-        (pk.length > 0) ? res.status(200).send(pk) : res.status(404).send("Pokemon no encontrado");
+        (pk.length > 0) ? 
+            res.status(200).json({code : 1, messsage : pk}) :
+            res.status(400).send("Pokemon no encontrado")
     }) 
 
     module.exports = pokemon;
