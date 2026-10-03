@@ -3,15 +3,32 @@
     const db = require('../config/database');
     
 
-    pokemon.post('/', (req, res, next) => {
-        res.status(200).send(req.body);
+    pokemon.post('/', async (req, res, next) => {
+        const {pok_name, pok_height, pok_weight, pok_base_experience} = req.body;
+
+        if(pok_name && pok_height && pok_weight && pok_base_experience){
+            let query = "INSERT INTO pokemon(pok_name, pok_height, pok_weight, pok_base_experience)";
+            query += `VALUES ('${pok_name}', ${pok_height}, ${pok_weight}, ${pok_base_experience})`;
+
+            const rows = await db.query(query);
+            console.log(rows);
+
+            if(rows.affectedRows === 1){
+                return res.status(201).json({code: 201, message: "Pokemon agregado con exito"});
+            }
+            return res.status(500).json({code: 500, message: "Error al agregar el pokemon"});
+        }
+        return res.status(400).json({code: 400, message: "Datos incompletos"});
+
     }); 
+
+
 
     /*Como obtener parametro de la url */
     pokemon.get("/", async(req, res, next) =>{
         const pkmn = await db.query("SELECT * FROM pokemon");
         console.log(pkmn);
-        return res.status(200).json({code: 1, mesage: pkmn});
+        return res.status(200).json({code: 200, message: pkmn});
     });
 
     /*Lo que sigue despues del id es un RegEx que funciona como una condicional para los parametros recibidos por el usuario */
@@ -23,7 +40,7 @@
         else{
             const pkmn = await db.query("SELECT * FROM pokemon WHERE pok_id =  ?", [id]);
             ( id >= 1 && id <= 722) ?
-            res.status(200).json({code : 1, messsage : pkmn}) :
+            res.status(200).json({code : 200, message : pkmn}) :
             res.status(404).json({code: 404, message: "Pokemon no encontrado"});
         }
         
@@ -34,7 +51,7 @@
         
         const pk = await db.query("SELECT * FROM pokemon WHERE pok_name = ?", [name]);
         (pk.length > 0) ? 
-            res.status(200).json({code : 1, messsage : pk}) :
+            res.status(200).json({code : 200, message : pk}) :
             res.status(400).send("Pokemon no encontrado")
     }) 
 
