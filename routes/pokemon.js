@@ -22,7 +22,49 @@
 
     }); 
 
+    /*Metodo delete */
 
+    pokemon.delete("/:id", async(req, res, next) => {
+        const query = `DELETE FROM pokemon WHERE pok_id = ${req.params.id}`;
+        const rows = await db.query(query);
+
+        if(rows.affectedRows == 1 ){
+            return res.status(200).json({code: 200, message: "Pokemon eliminado con exito"});
+        }
+        return res.status(404).json({code: 404, message: "Pokemon no encontrado"});
+    });
+
+    pokemon.put("/:id", async(req,res,next) => {
+        const {pok_name, pok_height, pok_weight, pok_base_experience} = req.body;
+
+        if(pok_name && pok_height && pok_weight && pok_base_experience){
+            let query = "UPDATE pokemon SET ";
+            query += `pok_name = '${pok_name}', pok_height = ${pok_height}, pok_weight = ${pok_weight}, pok_base_experience = ${pok_base_experience} `;
+            query += `WHERE pok_id = ${req.params.id}`;
+
+            const rows = await db.query(query);
+
+            if(rows.affectedRows === 1){
+                return res.status(200).json({code: 200, message: "Pokemon actualizado con exito"});
+            }
+            return res.status(500).json({code: 500, message: "Error al actualizar el pokemon"});
+        }
+        return res.status(400).json({code: 400, message: "Datos incompletos"});
+       
+    });
+
+      pokemon.patch("/:id", async(req,res,next) => {
+
+        if(req.body.pok_name){
+            let query = `UPDATE pokemon SET pok_name = '${req.body.pok_name}' WHERE pok_id = ${req.params.id}`;
+            const rows = await db.query(query);
+            if(rows.affectedRows === 1){
+                return res.status(200).json({code: 200, message: "Pokemon actualizado con exito"});
+            }
+            return res.status(500).json({code: 500, message: "Error al actualizar el pokemon"});
+        }
+        return res.status(500).json({code: 500, message: "Datos incompletos"});
+    });
 
     /*Como obtener parametro de la url */
     pokemon.get("/", async(req, res, next) =>{
