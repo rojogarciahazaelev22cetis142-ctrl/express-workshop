@@ -3,7 +3,7 @@
     const db = require('../config/database');
     const jwt = require('jsonwebtoken');
 
-    user.post('/', async (req,res, next) => {
+    user.post('/singin', async (req,res, next) => {
         const {user_name,user_mail,user_pasword} = req.body;
 
         if(user_name && user_mail && user_pasword){

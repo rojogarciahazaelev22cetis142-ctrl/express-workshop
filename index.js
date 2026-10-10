@@ -3,7 +3,9 @@
     const app = express();
     const pokemon = require('./routes/pokemon');
     const user = require('./routes/user');
-
+    const auth = require('./middlewere/auth');
+    const notFound = require('./middlewere/notFound');
+    const index = require('./middlewere/index'); 
     app.use(express.json());
     app.use(express.urlencoded( { extended : true}));
     app.use(morgan('dev')); // se encarga de mostrar en consola las peticiones que se hacen al servidor
@@ -18,17 +20,11 @@
     PATCH: modificar una parte de un recurso ya existente.
 
     */
-    app.get("/", (req, res, next) =>{
-        return res.status(200).json({code: 1, mesagge: "Bienvenido al Pokedex"}); 
-    });
-
-    app.use('/pokemon', pokemon);
+    app.get("/", index);
     app.use("/user", user);
-
-    app.use((req, res, next) => {
-        return res.status(404).json({ code: 404, mesagge: "URL no encontrada"});
-    });
-
+    app.use(auth);
+    app.use('/pokemon', pokemon);
+    app.use(notFound);
     app.listen(process.env.PORT || 3000,()  => {  
         console.log('Server is running on port 3000');
     });
