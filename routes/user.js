@@ -3,13 +3,13 @@
     const db = require('../config/database');
     const jwt = require('jsonwebtoken');
 
-    user.post('/singin', async (req,res, next) => {
-        const {user_name,user_mail,user_pasword} = req.body;
+    user.post('/signin', async (req,res, next) => {
+        const {user_name,user_mail,user_password} = req.body;
 
-        if(user_name && user_mail && user_pasword){
+        if(user_name && user_mail && user_password){
 
             let query = "INSERT INTO users (user_name, user_mail, user_pasword) ";
-            query += `VALUES ('${user_name}', '${user_mail}', '${user_pasword}')`;
+            query += `VALUES ('${user_name}', '${user_mail}', '${user_password}')`;
 
             const rows = await db.query(query);
 
@@ -37,7 +37,7 @@
                 return res.status(200).json({code: 200, message: token});
             }
             else{
-                return res.status(200).json({code: 200, message: "Usuario o contraseña incorrectos"});
+                return res.status(200).json({code: 401, message: "Usuario o contraseña incorrectos"});
             }
         }
         return res.status(500).json({code: 500, message: "Datos incompletos"});
